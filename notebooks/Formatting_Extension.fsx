@@ -144,10 +144,11 @@ let formatAsTable maxRows maxCols (f:Frame<_,_>) =
     |> toChartHTML
     
 // transmission and recovery rate per time interval (r_0 =  transmissionRate/recoveryRate)
-let plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart transmissionRate recoveryRate = 
+let plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart (rates:(float*float*float)[]) = 
     let (time,susceptible,infected,recovered)  =
+        let stepwidth = 0.01
         let rec loop t s i r accT accS accI accR =
-            let stepwidth = 0.01
+            let (time,transmissionRate,recoveryRate) = rates |> Array.findBack (fun (time,_,_) -> t >= time) 
             if t > maxT + 1. then 
                 accT |> List.rev, 
                 accS |> List.rev, 
@@ -162,15 +163,15 @@ let plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart t
         loop 0. susceptibleStart infectedStart recoveredStart [] [] [] []
     [    
         Chart.Line(time,susceptible,Color="#ff7f0e") |> Chart.withTraceName "susceptible"
-        Chart.Line(time,infected,Color="#d62728")    |> Chart.withTraceName (sprintf "infected tR=%.1f rR=%.2f" transmissionRate recoveryRate)
+        Chart.Line(time,infected,Color="#d62728")    |> Chart.withTraceName (sprintf "infected rates:%A" rates)
         Chart.Line(time,recovered,Color="#2ca02c")   |> Chart.withTraceName "recovered"
     ]
     |> Chart.Combine
-    |> Chart.withX_AxisStyle "time interval"
-    |> Chart.withX_AxisStyle "percentage of population"
+    |> Chart.withX_AxisStyle "time"
+    |> Chart.withY_AxisStyle "percentage of population"
     
-let plotTimeCourseDash maxT s' i' r' susceptibleStart infectedStart recoveredStart transmissionRate recoveryRate = 
-    plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart transmissionRate recoveryRate
+let plotTimeCourseDash maxT s' i' r' susceptibleStart infectedStart recoveredStart rates = 
+    plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart rates
     |> Chart.withLineStyle(Dash=StyleParam.Dash)
     
 //Formatter<Frame<_,_>>.Register((fun f writer -> 
