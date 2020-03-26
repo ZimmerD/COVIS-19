@@ -168,7 +168,6 @@ let plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart t
     |> Chart.Combine
     |> Chart.withX_AxisStyle "time interval"
     |> Chart.withX_AxisStyle "percentage of population"
-    |> Chart.withSize((columnWidth |> Seq.sum |> float |> (*) 2.),500.)
     
 let plotTimeCourseDash maxT s' i' r' susceptibleStart infectedStart recoveredStart transmissionRate recoveryRate = 
     plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart transmissionRate recoveryRate
