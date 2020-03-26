@@ -142,6 +142,44 @@ let formatAsTable maxRows maxCols (f:Frame<_,_>) =
         )
     |> Chart.withSize((columnWidth |> Seq.sum |> float |> (*) 2.),500.)
     |> toChartHTML
+    
+// transmission and recovery rate per time interval (r_0 =  transmissionRate/recoveryRate)
+let prepareTimeCourse transmissionRate recoveryRate = 
+    let (time,susceptible,infected,recovered)  =
+        let rec loop t s i r accT accS accI accR =
+            let stepwidth = 0.01
+            if t > maxT + 1. then 
+                accT |> List.rev, 
+                accS |> List.rev, 
+                accI |> List.rev, 
+                accR |> List.rev 
+            else 
+                let nS = s + (s' s i transmissionRate) * stepwidth
+                let nI = i + (i' s i transmissionRate recoveryRate) * stepwidth
+                let nR = r + (r' i recoveryRate) * stepwidth
+                loop (t + stepwidth) nS nI nR (t::accT) (nS::accS) (nI::accI) (nR::accR) 
+
+        loop 0. susceptibleStart infectedStart recoveredStart [] [] [] []
+    [    
+        Chart.Line(time,susceptible,Color="#ff7f0e") |> Chart.withTraceName "susceptible"
+        Chart.Line(time,infected,Color="#d62728")    |> Chart.withTraceName (sprintf "infected tR=%.3f rR=%.3f" transmissionRate recoveryRate)
+        Chart.Line(time,recovered,Color="#2ca02c")   |> Chart.withTraceName "recovered"
+    ]
+    |> Chart.Combine
+    |> Chart.withX_AxisStyle "time interval"
+    |> Chart.withX_AxisStyle "percentage of population"
+    |> Chart.withSize((columnWidth |> Seq.sum |> float |> (*) 2.),500.)
+    |> toChartHTML
+    
+let plotTimeCourse transmissionRate recoveryRate = 
+    prepareTimeCourse transmissionRate recoveryRate
+    |> toChartHTML
+    
+ let plotTimeCourseDash transmissionRate recoveryRate = 
+    prepareTimeCourse transmissionRate recoveryRate
+    |> toChartHTML
+    |> Chart.withLineStyle(Dash=StyleParam.Dash)
+    
 //Formatter<Frame<_,_>>.Register((fun f writer -> 
 //    let table1 = Chart.Table(header, rows)
 //    writer.Write(table1 |> toChartHTML |> HtmlString  )
