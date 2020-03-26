@@ -170,8 +170,8 @@ let plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart t
     |> Chart.withX_AxisStyle "percentage of population"
     |> Chart.withSize((columnWidth |> Seq.sum |> float |> (*) 2.),500.)
     
- let plotTimeCourseDash maxT s' i' r' susceptibleStart infectedStart recoveredStart transmissionRate recoveryRate = 
-    plotTimeCourse transmissionRate recoveryRate
+let plotTimeCourseDash maxT s' i' r' susceptibleStart infectedStart recoveredStart transmissionRate recoveryRate = 
+    plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart transmissionRate recoveryRate
     |> Chart.withLineStyle(Dash=StyleParam.Dash)
     
 //Formatter<Frame<_,_>>.Register((fun f writer -> 
