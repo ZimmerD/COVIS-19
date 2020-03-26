@@ -144,7 +144,7 @@ let formatAsTable maxRows maxCols (f:Frame<_,_>) =
     |> toChartHTML
     
 // transmission and recovery rate per time interval (r_0 =  transmissionRate/recoveryRate)
-let plotTimeCourse transmissionRate recoveryRate = 
+let plotTimeCourse maxT s' i' r' susceptibleStart infectedStart transmissionRate recoveryRate = 
     let (time,susceptible,infected,recovered)  =
         let rec loop t s i r accT accS accI accR =
             let stepwidth = 0.01
@@ -170,7 +170,7 @@ let plotTimeCourse transmissionRate recoveryRate =
     |> Chart.withX_AxisStyle "percentage of population"
     |> Chart.withSize((columnWidth |> Seq.sum |> float |> (*) 2.),500.)
     
- let plotTimeCourseDash transmissionRate recoveryRate = 
+ let plotTimeCourseDash maxT s' i' r' susceptibleStart infectedStart transmissionRate recoveryRate = 
     plotTimeCourse transmissionRate recoveryRate
     |> Chart.withLineStyle(Dash=StyleParam.Dash)
     
