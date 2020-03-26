@@ -162,7 +162,7 @@ let plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart t
         loop 0. susceptibleStart infectedStart recoveredStart [] [] [] []
     [    
         Chart.Line(time,susceptible,Color="#ff7f0e") |> Chart.withTraceName "susceptible"
-        Chart.Line(time,infected,Color="#d62728")    |> Chart.withTraceName (sprintf "infected tR=%.3f rR=%.3f" transmissionRate recoveryRate)
+        Chart.Line(time,infected,Color="#d62728")    |> Chart.withTraceName (sprintf "infected tR=%.1f rR=%.2f" transmissionRate recoveryRate)
         Chart.Line(time,recovered,Color="#2ca02c")   |> Chart.withTraceName "recovered"
     ]
     |> Chart.Combine
