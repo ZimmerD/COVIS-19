@@ -144,7 +144,7 @@ let formatAsTable maxRows maxCols (f:Frame<_,_>) =
     |> toChartHTML
     
 // transmission and recovery rate per time interval (r_0 =  transmissionRate/recoveryRate)
-let prepareTimeCourse transmissionRate recoveryRate = 
+let plotTimeCourse transmissionRate recoveryRate = 
     let (time,susceptible,infected,recovered)  =
         let rec loop t s i r accT accS accI accR =
             let stepwidth = 0.01
@@ -169,15 +169,9 @@ let prepareTimeCourse transmissionRate recoveryRate =
     |> Chart.withX_AxisStyle "time interval"
     |> Chart.withX_AxisStyle "percentage of population"
     |> Chart.withSize((columnWidth |> Seq.sum |> float |> (*) 2.),500.)
-    |> toChartHTML
-    
-let plotTimeCourse transmissionRate recoveryRate = 
-    prepareTimeCourse transmissionRate recoveryRate
-    |> toChartHTML
     
  let plotTimeCourseDash transmissionRate recoveryRate = 
-    prepareTimeCourse transmissionRate recoveryRate
-    |> toChartHTML
+    plotTimeCourse transmissionRate recoveryRate
     |> Chart.withLineStyle(Dash=StyleParam.Dash)
     
 //Formatter<Frame<_,_>>.Register((fun f writer -> 
