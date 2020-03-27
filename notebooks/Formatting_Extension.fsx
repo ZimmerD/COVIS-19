@@ -142,6 +142,38 @@ let formatAsTable maxRows maxCols (f:Frame<_,_>) =
         )
     |> Chart.withSize((columnWidth |> Seq.sum |> float |> (*) 2.),500.)
     |> toChartHTML
+    
+// transmission and recovery rate per time interval (r_0 =  transmissionRate/recoveryRate)
+let plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart (rates:(float*float*float)[]) = 
+    let (time,susceptible,infected,recovered)  =
+        let stepwidth = 0.01
+        let rec loop t s i r accT accS accI accR =
+            let (time,transmissionRate,recoveryRate) = rates |> Array.findBack (fun (time,_,_) -> t >= time) 
+            if t > maxT + 1. then 
+                accT |> List.rev, 
+                accS |> List.rev, 
+                accI |> List.rev, 
+                accR |> List.rev 
+            else 
+                let nS = s + (s' s i transmissionRate) * stepwidth
+                let nI = i + (i' s i transmissionRate recoveryRate) * stepwidth
+                let nR = r + (r' i recoveryRate) * stepwidth
+                loop (t + stepwidth) nS nI nR (t::accT) (nS::accS) (nI::accI) (nR::accR) 
+
+        loop 0. susceptibleStart infectedStart recoveredStart [] [] [] []
+    [    
+        Chart.Line(time,susceptible,Color="#ff7f0e") |> Chart.withTraceName "susceptible"
+        Chart.Line(time,infected,Color="#d62728")    |> Chart.withTraceName (sprintf "infected rates:%A" rates)
+        Chart.Line(time,recovered,Color="#2ca02c")   |> Chart.withTraceName "recovered"
+    ]
+    |> Chart.Combine
+    |> Chart.withX_AxisStyle "time"
+    |> Chart.withY_AxisStyle "percentage of population"
+    
+let plotTimeCourseDash maxT s' i' r' susceptibleStart infectedStart recoveredStart rates = 
+    plotTimeCourse maxT s' i' r' susceptibleStart infectedStart recoveredStart rates
+    |> Chart.withLineStyle(Dash=StyleParam.Dash)
+    
 //Formatter<Frame<_,_>>.Register((fun f writer -> 
 //    let table1 = Chart.Table(header, rows)
 //    writer.Write(table1 |> toChartHTML |> HtmlString  )
